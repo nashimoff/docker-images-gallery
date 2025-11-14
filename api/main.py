@@ -4,6 +4,7 @@ from flask import Flask, request
 from dotenv import load_dotenv
 from flask_cors import CORS
 
+# .env.local yükle
 load_dotenv(dotenv_path="./.env.local")
 
 UNSPLASH_URL = "https://api.unsplash.com/photos/random"
@@ -24,9 +25,21 @@ app.config["DEBUG"] = DEBUG
 @app.route("/new-image")
 def new_image():
     word = request.args.get("query")
-    headers = {"Accept-Version": "v1", "Authorization": "Client-ID " + UNSPLASH_KEY}
+
+    headers = {
+        "Accept-Version": "v1",
+        "Authorization": "Client-ID " + UNSPLASH_KEY
+    }
+
     params = {"query": word}
-    response = requests.get(url=UNSPLASH_URL, headers=headers, params=params)
+
+    # ❗ SSL doğrulamasını kapattık (Docker içinde SSL hatası çözümü)
+    response = requests.get(
+        url=UNSPLASH_URL,
+        headers=headers,
+        params=params,
+        verify=False  # <<< BURASI EKLENDİ
+    )
 
     data = response.json()
     return data
